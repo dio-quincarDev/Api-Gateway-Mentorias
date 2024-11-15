@@ -33,17 +33,13 @@ public class GameController implements GameApi {
 
     @Override
     public ResponseEntity<Game> updateGame(String id, Game game) {
-        log.info("Request to update game with id: {}", id);
         Game updatedGame = this.gameService.updateGame(id, game);
-        log.info("Game updated successfully");
         return ResponseEntity.ok(updatedGame);
     }
 
     @Override
     public ResponseEntity<Void> deleteGame(String id) {
-        log.info("Request to delete game with id: {}", id);
         this.gameService.deleteGame(id);
-        log.info("Game deleted successfully");
         return ResponseEntity.noContent().build();
     }
 }
