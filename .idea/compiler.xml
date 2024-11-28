@@ -8,11 +8,15 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="game-service.api" />
+        <module name="Security.Mentorias" />
+        <module name="ApiGateway-mentorias" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="ApiGateway-mentorias" options="-parameters" />
+      <module name="Security.Mentorias" options="-parameters" />
       <module name="game-service.api" options="-parameters" />
     </option>
   </component>

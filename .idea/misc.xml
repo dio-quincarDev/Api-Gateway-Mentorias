@@ -5,6 +5,8 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/game-service.api/pom.xml" />
+        <option value="$PROJECT_DIR$/Security.Mentorias/pom.xml" />
+        <option value="$PROJECT_DIR$/ApiGateway-mentorias/pom.xml" />
       </list>
     </option>
   </component>
