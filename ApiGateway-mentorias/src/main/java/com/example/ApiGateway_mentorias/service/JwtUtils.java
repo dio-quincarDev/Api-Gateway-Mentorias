@@ -2,20 +2,30 @@ package com.example.ApiGateway_mentorias.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Service
 public class JwtUtils {
-    private final String secretKey = "{jwt.secret}";
+
+    @Value("${jwt.secret}")
+    private  String secretKey;
 
     public Claims getClaims(String token){
-        return Jwts.parser()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parser()
+                    .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)))
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            System.err.println("Error validando el token JWT: " + e.getMessage());
+            throw new IllegalArgumentException("Error validando token JWT: " + e.getMessage(), e);
+        }
     }
     public boolean isExpired(String token){
         try{

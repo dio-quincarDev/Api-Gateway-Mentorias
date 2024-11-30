@@ -1,13 +1,19 @@
+server:
+  port: 8082
+
+jwt:
+  secret: ${JWT_SECRET}
+
 spring:
   cloud:
     gateway:
       routes:
         - id: auth-route
-          uri: https://localhost:8081
+          uri: http://localhost:8081
           predicates:
             - Path=/auth/**
         - id: game-route
-          uri: https://localhost:8080
+          uri: http://localhost:8080
           predicates:
             - Path=/games/**
           filter:

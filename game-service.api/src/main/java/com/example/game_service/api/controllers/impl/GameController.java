@@ -6,6 +6,7 @@ import com.example.game_service.api.services.servicesImpl.GameServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,8 +22,8 @@ public class GameController implements GameApi {
 
 
     @Override
-    public ResponseEntity<Game> saveGame(@RequestBody Game game) {
-        Game gameCreated = this.gameService.saveGame(game);
+    public ResponseEntity<Game> saveGame(@RequestHeader("userIdRequest") String userId, @RequestBody Game game) {
+        Game gameCreated = this.gameService.saveGame(userId,game);
         return ResponseEntity.ok(gameCreated);
     }
 

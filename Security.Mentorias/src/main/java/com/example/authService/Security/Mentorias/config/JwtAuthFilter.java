@@ -34,7 +34,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if (authHeader == null || !authHeader.startsWith("Bearer")) {
             filterChain.doFilter(request, response);
+
             return;
+
         }
         String jwt = authHeader.substring(7);
         try {
@@ -51,6 +53,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
+        System.out.println("Header Authorization: " + authHeader);
+        System.out.println("JWT extraído: " + jwt);
 
         filterChain.doFilter(request, response);
     }

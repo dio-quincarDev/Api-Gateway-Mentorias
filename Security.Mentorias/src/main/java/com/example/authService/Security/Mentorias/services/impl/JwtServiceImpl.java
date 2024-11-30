@@ -5,10 +5,12 @@ import com.example.authService.Security.Mentorias.services.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Service
@@ -21,14 +23,15 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public TokenResponse generateToken(Long userId) {
-        Date expirationDate = new Date(Long.MAX_VALUE);
+        Date now = new Date();
+        Date expirationDate = new Date(now.getTime() + 86400000);
 
         String token = Jwts.builder()
-                .setSubject(String.valueOf(userId))
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(expirationDate)
-                .signWith(SignatureAlgorithm.HS512, this.secretToken)
-               .compact();
+                .subject(String.valueOf(userId))
+                .issuedAt(now)
+                .expiration(expirationDate)
+                .signWith(Keys.hmacShaKeyFor(secretToken.getBytes(StandardCharsets.UTF_8)))
+                .compact();
         return TokenResponse.builder()
                 .accessToken(token)
                .build();
@@ -37,11 +40,15 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public Claims getClaims(String token) {
-        return Jwts.parser()
-                .setSigningKey(this.secretToken)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parser()
+                    .setSigningKey(Keys.hmacShaKeyFor(secretToken.getBytes(StandardCharsets.UTF_8)))
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error validando el token JWT: " + e.getMessage(), e);
+        }
     }
 
     @Override
