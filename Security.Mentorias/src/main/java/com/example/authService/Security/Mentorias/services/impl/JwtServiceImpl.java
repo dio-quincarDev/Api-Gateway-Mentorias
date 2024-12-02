@@ -5,12 +5,10 @@ import com.example.authService.Security.Mentorias.services.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Service
@@ -23,32 +21,27 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public TokenResponse generateToken(Long userId) {
-        Date now = new Date();
-        Date expirationDate = new Date(now.getTime() + 86400000);
+        Date expirationDate = new Date(Long.MAX_VALUE);
 
         String token = Jwts.builder()
-                .subject(String.valueOf(userId))
-                .issuedAt(now)
-                .expiration(expirationDate)
-                .signWith(Keys.hmacShaKeyFor(secretToken.getBytes(StandardCharsets.UTF_8)))
+                .setSubject(String.valueOf(userId))
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(expirationDate)
+                .signWith(SignatureAlgorithm.HS512, this.secretToken)
                 .compact();
         return TokenResponse.builder()
                 .accessToken(token)
-               .build();
+                .build();
     }
 
 
     @Override
     public Claims getClaims(String token) {
-        try {
-            return Jwts.parser()
-                    .setSigningKey(Keys.hmacShaKeyFor(secretToken.getBytes(StandardCharsets.UTF_8)))
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Error validando el token JWT: " + e.getMessage(), e);
-        }
+        return Jwts.parser()
+                .setSigningKey(this.secretToken)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     @Override
@@ -63,7 +56,7 @@ public class JwtServiceImpl implements JwtService {
 
     @Override public Integer extractUserId(String token) {
         try { String subject = getClaims(token).getSubject();
-             return Integer.parseInt(subject);
+            return Integer.parseInt(subject);
         } catch (Exception e) {
             System.err.println("Error extrayendo token" + e.getMessage());
             return null; }

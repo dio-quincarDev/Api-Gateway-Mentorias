@@ -34,29 +34,26 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if (authHeader == null || !authHeader.startsWith("Bearer")) {
             filterChain.doFilter(request, response);
-
             return;
-
         }
         String jwt = authHeader.substring(7);
         try {
             Integer userId = jwtService.extractUserId(jwt);
-            if (userId == null) {
+            if (userId == null){
                 System.err.println("invalid or missing userId in JWT.");
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 return;
             }
             userRepository.findById(Long.valueOf(userId)).ifPresent(userDetails -> authenticateUser(request, userDetails));
             request.setAttribute("X-User-Id", String.valueOf(userId));
-        } catch (Exception e) {
+        }catch(Exception e){
             System.err.println("Error parsing JWT: " + e.getMessage());
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
-        System.out.println("Header Authorization: " + authHeader);
-        System.out.println("JWT extraído: " + jwt);
 
         filterChain.doFilter(request, response);
+
     }
 
     private void authenticateUser(HttpServletRequest request, UserDetails userDetails) {
