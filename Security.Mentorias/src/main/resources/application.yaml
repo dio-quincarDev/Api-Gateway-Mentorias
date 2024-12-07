@@ -2,8 +2,10 @@ server:
   port: 8081
 
 jwt:
-  secret: rVubshZyysGb+5lw+tiwcaEFiGpdggfm5I2aey0+Tqh6gqQXGIzhcd/AhocAuJyT2UScLjOHC+NXSj3+Je1rJA==
-
+  secret: dDIFLIVHsCgDakpmjhoNHc5InstUeY9p8RfJLND7MnNL1LHIAABRji1bDSFCI6/sKwU7Di57J2IhENMDeva6rg==
+  header: Authorization
+  prefix: Bearer
+  expiration-time: 86400000 # 24 hours
 spring:
     datasource:
       url: jdbc:postgresql://localhost:5432/auth

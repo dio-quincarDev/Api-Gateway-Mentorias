@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
+
 @Component
 public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
     private final RouterValidator validator;
@@ -20,42 +22,65 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
         this.validator = validator;
         this.jwtUtils = jwtUtils;
     }
+
     @Override
     public GatewayFilter apply(Config config){
         return ((exchange, chain) -> {
             ServerHttpRequest request =  exchange.getRequest();
 
             if(validator.isSecured.test(request)){
+                // Detailed logging for secured routes
+                System.out.println("Secured route accessed: " + request.getPath());
+
                 if (authMissing(request)){
-                    return onError(exchange, HttpStatus.UNAUTHORIZED);
-                }
-                String authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
-                System.out.println("Header Authorization: " + authHeader);
-                if(authHeader != null && authHeader.startsWith("Bearer ")){
-                    authHeader = authHeader.substring(7);
-                }else{
-                    return onError(exchange, HttpStatus.UNAUTHORIZED);
-                }
-                System.out.println("Token JWT: " + authHeader);
-                if (jwtUtils.isExpired(authHeader)){
+                    System.err.println("Authorization header missing");
                     return onError(exchange, HttpStatus.UNAUTHORIZED);
                 }
 
-                String userId = jwtUtils.extractUserId(authHeader).toString();
+                try {
+                    String authHeader = request.getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
+                    System.out.println("Full Authorization Header: " + authHeader);
 
-                System.out.println("UserId extraído: " + userId);
-                ServerHttpRequest mutatedRequest = request.mutate()
-                        .header("userIdRequest", userId)
-                        .build();
+                    if(!authHeader.startsWith("Bearer ")){
+                        System.err.println("Invalid Authorization header format");
+                        return onError(exchange, HttpStatus.UNAUTHORIZED);
+                    }
 
-                exchange = exchange.mutate().request(mutatedRequest).build();
+                    String token = authHeader.substring(7);
+                    System.out.println("Extracted Token: " + token);
 
+                    // Validate token
+                    if (jwtUtils.isExpired(token)){
+                        System.err.println("Token has expired");
+                        return onError(exchange, HttpStatus.UNAUTHORIZED);
+                    }
+
+                    // Extract and validate userId
+                    Optional<String> userIdOptional = jwtUtils.extractUserId(token);
+                    if(userIdOptional.isEmpty()){
+                        System.err.println("Unable to extract userId from token");
+                        return onError(exchange, HttpStatus.FORBIDDEN);
+                    }
+
+                    String userId = userIdOptional.get();
+                    System.out.println("Extracted UserId: " + userId);
+
+                    // Mutate request with userId
+                    ServerHttpRequest mutatedRequest = request.mutate()
+                            .header("userIdRequest", userId)
+                            .build();
+
+                    return chain.filter(exchange.mutate().request(mutatedRequest).build());
+
+                } catch (Exception e) {
+                    System.err.println("Authentication error: " + e.getMessage());
+                    e.printStackTrace();
+                    return onError(exchange, HttpStatus.FORBIDDEN);
+                }
             }
 
             return chain.filter(exchange);
-
         });
-
     }
 
     private Mono <Void> onError(ServerWebExchange exchange, HttpStatus httpStatus){

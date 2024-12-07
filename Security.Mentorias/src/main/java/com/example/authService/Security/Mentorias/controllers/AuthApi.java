@@ -15,4 +15,6 @@ public interface  AuthApi {
 
     @GetMapping
     ResponseEntity<String> getUser(@RequestAttribute(name="X-User-Id") @Valid String userId);
+
+
 }

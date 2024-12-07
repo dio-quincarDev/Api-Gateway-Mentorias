@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 
 @Service
 public class RouterValidator {
-    public static final List<String> openEndPoints = List.of("/auth");
+    public static final List<String> openEndPoints = List.of("/v1/auth/login");
 
     public Predicate<ServerHttpRequest> isSecured = serverHttpRequest->
             openEndPoints.stream().noneMatch(uri -> serverHttpRequest.getURI().getPath().contains(uri));
