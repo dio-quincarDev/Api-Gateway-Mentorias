@@ -2,7 +2,7 @@ server:
   port: 8082
 
 jwt:
-  secret: dDIFLIVHsCgDakpmjhoNHc5InstUeY9p8RfJLND7MnNL1LHIAABRji1bDSFCI6/sKwU7Di57J2IhENMDeva6rg==
+  secret: tDRRl8rqyhx05TfgfrQXBgI4qsJkGiuPGo6FwhSSKHO5eeR/emr5pOTV2GqpQG6RLCB/Ey4eAzUEcBQ33VY5Ng==
 
 spring:
   cloud:

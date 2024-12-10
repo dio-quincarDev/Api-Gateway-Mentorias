@@ -41,8 +41,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         String jwt = authHeader.substring(7);
+        logger.info("Extracted JWT: " + jwt);
         try {
             Integer userId = jwtService.extractUserId(jwt);
+            logger.info("Extracted userId: " + userId);
             if (userId == null) {
                 throw new IllegalArgumentException("Invalid or missing userId in JWT.");
             }
@@ -50,7 +52,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             UserModel user = userRepository.findById(Long.valueOf( userId))
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + userId));
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    user, null, null);
+                    user, null, user.getAuthorities());
             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authToken);
 

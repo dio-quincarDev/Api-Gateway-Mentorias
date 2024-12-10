@@ -14,6 +14,8 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+
+
 @Service
 public class JwtServiceImpl implements JwtService {
     private final SecretKey secretKey;
@@ -51,10 +53,10 @@ public class JwtServiceImpl implements JwtService {
     public Claims getClaims(String token) {
         try {
             return Jwts.parser()
-                    .setSigningKey(secretKey)
+                    .verifyWith(secretKey)
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+                    .parseSignedClaims(token)
+                    .getPayload();
         } catch (Exception e) {
             System.err.println("Error parsing JWT: " + e.getMessage());
             throw new IllegalArgumentException("Invalid JWT token", e);
@@ -73,9 +75,14 @@ public class JwtServiceImpl implements JwtService {
 
     @Override public Integer extractUserId(String token) {
         try {
-            return Integer.parseInt(getClaims(token).getSubject());
+            Claims claims = getClaims(token);
+            Object userIdClaim = claims.get("userId");
+            if (userIdClaim == null){
+                throw new IllegalArgumentException("No userId claim found for token");
+            }
+            return ((Number) claims.get("userId")).intValue();
+
         } catch (IllegalArgumentException e) {
-            System.err.println("Error validando token JWT: " + e.getMessage());
             System.err.println("Error extrayendo token" + e.getMessage());
             return null;
         }
