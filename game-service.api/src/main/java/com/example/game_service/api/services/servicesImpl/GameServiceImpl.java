@@ -1,25 +1,42 @@
 package com.example.game_service.api.services.servicesImpl;
 
+import com.example.game_service.api.commons.constants.TopicConstants;
 import com.example.game_service.api.commons.entities.Game;
 import com.example.game_service.api.commons.exceptions.GameException;
 import com.example.game_service.api.repository.GameRepository;
 import com.example.game_service.api.services.GameService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Slf4j
 @Service
 public class GameServiceImpl implements GameService {
     private final GameRepository gameRepository;
+    private final StreamBridge streamBridge;
 
-    public GameServiceImpl(GameRepository gameRepository) {
+    public GameServiceImpl(GameRepository gameRepository, StreamBridge streamBridge) {
         this.gameRepository = gameRepository;
+        this.streamBridge = streamBridge;
     }
 @Override
     public Game saveGame(String userId,Game gameRequest){
         gameRequest.setUserId(Integer.parseInt(userId));
-        return this.gameRepository.save(gameRequest);
+        return Optional.of(gameRequest)
+                .map(gameRepository::save)
+                .map(this::sendGameEvent)
+                .orElseThrow(()-> new GameException(HttpStatus.BAD_REQUEST, "Error saving game"));
+    }
+
+    private Game sendGameEvent(Game game) {
+        Optional.of(game)
+                .map(givenGame -> this.streamBridge.send(TopicConstants.GAME_CREATED_TOPIC,game))
+                .map(bool -> game);
+
+        return game;
     }
 
     @Override

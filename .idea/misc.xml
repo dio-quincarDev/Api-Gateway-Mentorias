@@ -7,6 +7,7 @@
         <option value="$PROJECT_DIR$/game-service.api/pom.xml" />
         <option value="$PROJECT_DIR$/Security.Mentorias/pom.xml" />
         <option value="$PROJECT_DIR$/ApiGateway-mentorias/pom.xml" />
+        <option value="$PROJECT_DIR$/eligibility.micro/pom.xml" />
       </list>
     </option>
   </component>
