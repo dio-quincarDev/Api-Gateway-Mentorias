@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/games")
 public class GameController implements GameApi {
     private final GameServiceImpl gameService;
 
