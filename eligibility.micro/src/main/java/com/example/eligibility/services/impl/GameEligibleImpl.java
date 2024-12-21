@@ -26,7 +26,7 @@ public class GameEligibleImpl implements GameEligibleService {
 
     private Mono<GameCreatedEvent> checkIsEligible(GameCreatedEvent gameCreatedEvent) {
        return  Mono.just(gameCreatedEvent)
-                .filter(Objects::nonNull)
+                .filter(given-> !given.getName().isBlank())
                 .map(given-> gameCreatedEvent);
     }
 }

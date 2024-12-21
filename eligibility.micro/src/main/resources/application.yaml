@@ -7,7 +7,7 @@ spring:
         enabled: true
 
   r2dbc:
-    url:  r2dbc:postgresql://localhost:5432/
+    url:  r2dbc:postgresql://localhost:5432/kafka
     username: postgres
     password: diogenes
 
@@ -15,15 +15,15 @@ spring:
     function:
       definition: gameCreatedBinding;
     stream:
-      default-binder: kakfa_default
+      default-binder: kafka_default
       bindings:
         gameCreatedBinding-in-0:
           destination: event.game-created
-          binder: kakfa_default
+          binder: kafka_default
           useNativeDecoding: true
         gameCreatdedBinding-out-0:
           destination: event.game-elegible
-          binder: kakfa_default
+          binder: kafka_default
           useNativeDecoding: true
 
       binders:
