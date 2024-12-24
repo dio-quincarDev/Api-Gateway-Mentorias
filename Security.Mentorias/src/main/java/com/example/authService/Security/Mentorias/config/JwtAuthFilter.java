@@ -48,6 +48,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if (userId == null) {
                 throw new IllegalArgumentException("Invalid or missing userId in JWT.");
             }
+            request.setAttribute("X-User-Id",userId.toString());
 
             UserModel user = userRepository.findById(Long.valueOf( userId))
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + userId));

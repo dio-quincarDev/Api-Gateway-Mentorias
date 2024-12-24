@@ -37,14 +37,11 @@ public class JwtUtils {
     public Optional<String> extractUserId(String token) {
         try {
             Claims claims = getClaims(token);
-
             // Primero intenta obtener userId del claim
             Object userIdClaim = claims.get("userId");
             if (userIdClaim != null) {
                 return Optional.of(userIdClaim.toString());
-            }
-
-            // Si no, intenta obtener del subject
+            }// Si no, intenta obtener del subject
             return Optional.ofNullable(claims.getSubject());
         } catch (Exception e) {
             System.err.println("Error extrayendo userId: " + e.getMessage());

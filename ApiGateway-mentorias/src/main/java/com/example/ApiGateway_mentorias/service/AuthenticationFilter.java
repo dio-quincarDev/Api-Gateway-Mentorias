@@ -64,10 +64,9 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 
                     String userId = userIdOptional.get();
                     System.out.println("Extracted UserId: " + userId);
-
                     // Mutate request with userId
                     ServerHttpRequest mutatedRequest = request.mutate()
-                            .header("userIdRequest", userId)
+                            .header("X-User-Id", userId)
                             .build();
 
                     return chain.filter(exchange.mutate().request(mutatedRequest).build());
